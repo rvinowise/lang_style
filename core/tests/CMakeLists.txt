@@ -12,6 +12,5 @@ set(TESTED_INTERNALS_DIR ${PROJECT_SOURCE_DIR}/../lang_style/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${TESTED_INTERNALS_DIR})
 
 #param
-
-
-target_include_directories(${PROJECT_NAME} PRIVATE /home/rvi/prg/test/catch2/single_include)
+set(CATCH_INCLUDE_DIR D:/proger/test/catch2/single_include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CATCH_INCLUDE_DIR})
