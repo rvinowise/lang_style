@@ -1,0 +1,1 @@
+It represents a list of possible words, that could go instead of the original word from the given text, according to collocations.
