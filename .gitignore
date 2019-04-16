@@ -3,3 +3,6 @@ build*/
 *.dll
 *.a
 *.so
+
+CMakeLists.txt.user*
+
