@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <boost/log/trivial.hpp>
+
 // test framework
 //#include "gtest/gtest.h"
 //#include "gmock/gmock.h"
@@ -12,8 +14,9 @@
 #include "Collocations_checker/Collocations_checker.h"
 
 using namespace lang_style_check;
-
+using namespace boost::log;
 int main(int, char**) {
+    BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
     Collocations_checker collocations_checker{};
 
     //collocations_checker.set_text("bla bla bla");
