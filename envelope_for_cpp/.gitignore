@@ -1,3 +1,5 @@
+#gitignore for python
+
 #anything invisible is usually not needed
 .*/
 .*
