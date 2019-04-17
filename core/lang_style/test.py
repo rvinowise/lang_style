@@ -1,23 +1,21 @@
-import unittest as test
+import pytest
+import unittest
 import sys
 
 from .collocations_checker import Collocations_checker
 
-class Collocation_recommendations(test.TestCase):
+class Collocation_recommendations(unittest.TestCase):
     """
     given text, Collocation_checker must provide an object
     with better word choices
     """
 
-    def __init__(self):
+    def setUp(self):
         self.checker = Collocations_checker()
         given_text = "I eat powerful tea on the morning"
-        self.checker.set_test(given_text)
+        self.checker.set_text(given_text)
         self.checker.process()
         self.better_text = self.checker.get_result()
-
-    def setUp(self):
-        pass
 
 
     def test_better_noun_attribute_is_provided(self):
