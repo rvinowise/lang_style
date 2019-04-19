@@ -18,7 +18,6 @@ def get_collocations_for_word(phrase) -> list:
     params = {'corpus': 'eng-us', 'query': phrase, 'format': 'json', 'topk': 5}
     response = requests.get('https://api.phrasefinder.io/search', params)
     json = response.json()
-    print(json)
 
     '''json = retrieve_server_data(url)
     meanings = parce_server_data(json, word)
@@ -56,7 +55,6 @@ class Meaning:
         >'''.format(self.part, self.definition, self.synonims)
 
 def parce_server_data(raw_data, given_word):
-    print(raw_data)
     meanings = []
     for part_of_speech_block in raw_data:
         if (not is_exact_word(part_of_speech_block, given_word)):
@@ -69,7 +67,6 @@ def parce_server_data(raw_data, given_word):
             meaning.synonims = part_of_speech_block['meta']['syns'][i_definition]
             meanings.append(meaning)
 
-    #print('\n'.join(map(str, meanings)))
     return meanings
 
 
@@ -77,4 +74,4 @@ def is_exact_word(raw_meaning, given_word):
     return raw_meaning['meta']['id'] == given_word
 
 if __name__ == '__main__':
-    print(get_collocations_for_word('furious dog'))
+    get_collocations_for_word('furious dog')

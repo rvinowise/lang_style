@@ -1,1 +1,5 @@
+#linux path
 source ./venv/bin/activate
+#windows path
+source ./venv/Scripts/activate
+
