@@ -20,11 +20,11 @@ def get_synonims_for_word(word) -> list:
     return synonims
 
 def retrieve_server_data(url):
-    responce = requests.get(url)
-    if responce.status_code != 200:
+    response = requests.get(url)
+    if response.status_code != 200:
         raise requests.exceptions.HTTPError
 
-    return responce.json()
+    return response.json()
 
 '''
 from enum import Enum
