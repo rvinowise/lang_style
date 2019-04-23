@@ -8,16 +8,40 @@ base_url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{0}?k
 
 
 
-def get_synonims_for_word(word) -> list:
-    #url = base_url+word+'?key='+key
+def get_synonims_for_word(word, tag) -> list:
+    '''
+    :param word: search synonims for this
+    :param tag: Universal encoding (NOUN)
+    :type param word: str
+    :type param tag: str
+    :return: list(Word_choice)
+    '''
     url = base_url.format(word);
     #print(url)
     json = retrieve_server_data(url)
-    meanings = parce_server_data(json, word)
+    meanings = parce_server_data(json,
+                                 word,
+                                 tag_universal_to_webster(tag))
     synonims = []
     for meaning in meanings:
         synonims.extend(meaning.synonims)
     return synonims
+
+universal_to_api_tags = {
+    'NOUN': 'noun',
+    'ADJ': 'adjective',
+    'VERB': 'verb',
+    'ADV': 'adverb'
+}
+def tag_universal_to_webster(universal_tag):
+    '''
+    webster uses special names for parts pf speech.
+    the caller code uses nltk tags ('universal' - for pure parts of speech,
+    'en-ptb' - for maxumum information on forms)
+    :param universal_tag: tag in Universal style (NOUN)
+    :return:
+    '''
+    return universal_to_api_tags[universal_tag]
 
 def retrieve_server_data(url):
     response = requests.get(url)
@@ -39,7 +63,8 @@ class Part_of_speech(Enum):
 class Meaning:
     def __init__(self):
         self.part = "" #Part_of_speech.NONE
-        self.definition = ''
+        self.tag:str = None
+        self.definition:str = None
         self.synonims = []
     def __str__(self):
         return '''<Meaning: {0}
@@ -47,15 +72,17 @@ class Meaning:
         {2}
         >'''.format(self.part, self.definition, self.synonims)
 
-def parce_server_data(raw_data, given_word):
+def parce_server_data(raw_data, searched_word, searched_tag):
     meanings = []
     for part_of_speech_block in raw_data:
-        if (not is_exact_word(part_of_speech_block, given_word)):
+        if part_of_speech_block['fl'] != searched_tag.lower():
+            continue
+
+        if (not is_exact_word(part_of_speech_block['meta']['id'], searched_word)):
             continue
 
         for i_definition, definition in enumerate(part_of_speech_block['shortdef']):
             meaning = Meaning()
-            meaning.part = part_of_speech_block['fl']
             meaning.definition = definition
             meaning.synonims = part_of_speech_block['meta']['syns'][i_definition]
             meanings.append(meaning)
@@ -64,9 +91,17 @@ def parce_server_data(raw_data, given_word):
     return meanings
 
 
-def is_exact_word(raw_meaning, given_word):
-    return raw_meaning['meta']['id'] == given_word
+def is_exact_word(server_word, given_word):
+    '''
+    for request 'dog' server may response 'dog collar' - ignore it
+    :param server_word: word returned from the server
+    :param given_word: word that we are searching synonims for
+    :return: whether we must consider this answer-word, or it's different
+    '''
+    import re
+    return re.subn(r'[^a-zA-Z]','', server_word)[1] == re.subn(r'[^a-zA-Z]','', given_word)[1]
 
 if __name__ == '__main__':
-    get_synonims_for_word("dog")
+    res = get_synonims_for_word("dog", 'NOUN')
+    print(res)
 

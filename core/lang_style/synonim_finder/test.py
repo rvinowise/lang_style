@@ -5,40 +5,38 @@ import unittest
 from . import synonim_finder
 
 
-@pytest.fixture(scope='module', params=[
-    "My friends like playing games",
-    "a big house"
-])
-def synonim_finder_works(request):
-    result = synonim_finder.process(request.param)
-    return result
-
-@pytest.fixture(params = [
-    '  My  random text  with some   words'
-])
-def synonim_finder_initialized(request):
-    finder = synonim_finder.Synonim_finder
-    finder.set_text(request.param)
-    yield finder
-    finder.clear()
-
 
 @pytest.mark.parametrize('given_text', [
-    ("My friends like playing games")
+    #"My friends like playing games"
+    ([('My', 'PRP$'), ('friends', 'NNS'), ('like', 'IN'), ('playing', 'VBG'), ('games', 'NNS')])
 ])
 def test_result_is_initialized(given_text):
     finder = synonim_finder.Synonim_finder()
     finder.set_text(given_text)
-    for i, word in enumerate(given_text.split()):
-        assert finder.words[i].given_word == word
+    for i, word_and_tag in enumerate(given_text):
+        assert finder.words[i].given_word == word_and_tag[0]
+        assert finder.words[i].tag == word_and_tag[1]
 
 
 @pytest.mark.parametrize('given_text', [
-    ('a huge dwelling is built')
+    #'a huge dwelling is built quickly'
+    ([('a', 'DET'), ('huge', 'ADJ'), ('dwelling', 'NOUN'),
+      ('is', 'VERB'), ('built', 'VERB'), ('quickly', 'ADV')])
 ])
 def test_provide_synonims_for_a_phrase(given_text):
+    '''
+    demonstration of the module's work
+    :param given_text: output of nltk.word_tokenize()+nltk.pos_tag(),
+                        with Universal tags (NOUN)
+    :return:
+    '''
+    # given_text = [(word, nltk.tag.map_tag('en-ptb', 'universal', tag))
+    #               for word, tag in given_text]
+
     result = synonim_finder.process(given_text)
-    print(result[1])
-    assert 'big' in result[1]
+    assert 'enormous' in result[1]
     assert 'house' in result[2]
     assert 'make' in result[4]
+    assert 'fast' in result[5]
+    print(result)
+    print(result[5])
