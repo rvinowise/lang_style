@@ -25,13 +25,13 @@ def test_collocations_found(word, true_phrases):
 
 
 @pytest.mark.parametrize('phrases, true_frequencies', [
-    (['strong tea', 'powerful tea', 'big tea', 'bitter tea'],
+    (['strong tea', 'powerful tea', 'trololo blabalbla lol tea', 'bitter tea'],
      [4,1,2,3]
      )
 ])
 def test_phrases_relative_frequency_found(phrases, true_frequencies):
     test_frequencies = api_phrasefinder.compare_phrases_frequency(phrases)
-    true_sorted = sorted(list(zip(phrases, true_frequencies)), key=lambda x:x[1])
+    true_sorted = sorted(list(zip(phrases, true_frequencies)), key=lambda x:x[1], reverse=True)
     print(true_sorted)
-    for i_phrase, (test_phrase, test_frequency) in enumerate(test_frequencies):
+    for i_phrase, test_phrase in enumerate(test_frequencies):
         assert test_phrase == true_sorted[i_phrase][0].split(' ')
