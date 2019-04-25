@@ -1,6 +1,6 @@
 
 
-class Word_choices(object):
+class Word_choices():
     """
     possible word choices for the given word, according to collocations.
     takes use of the Tag - the part of speech encoded

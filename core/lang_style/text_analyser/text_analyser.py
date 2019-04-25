@@ -1,6 +1,6 @@
 import nltk, re, pprint
 
-def tokenize(text):
+def tokenize(text, tagset=None):
     '''
     create a parseable structure from the given raw text
     :param: text to be tokenized
@@ -10,7 +10,7 @@ def tokenize(text):
     '''
     sent = nltk.sent_tokenize(text)
     sent = [nltk.word_tokenize(sent) for sent in sent]
-    sent = [nltk.pos_tag(sent) for sent in sent]
+    sent = [nltk.pos_tag(sent, tagset=tagset) for sent in sent]
 
     return sent
 

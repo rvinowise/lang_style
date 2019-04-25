@@ -52,7 +52,8 @@ def get_phrases_with_word(given_word) -> list:
 def compare_phrases_frequency(phrases):
     '''
     :param phrases: list of str #list of list of words
-    :return:
+    :return: list of phrases with frequencies, each phrase is a tuple of words
+    :type return: list(tuple(tuple(str..), float))
     '''
     query = '"' + '"/"'.join(phrases) + '"'
     raw_data = retrieve_server_data(query)
@@ -97,12 +98,11 @@ def eliminate_case_sensitiveness(phrases):
     :type param: list(tuple(list(str),float))
     :return: list of Different phrases+frequencies
     '''
+    total_frequencies = {}
     for phrase, frequency in phrases:
-        for word in phrase:
-            word.lower()
-        total_frequencies = {}
-        total_frequencies[phrase] = \
-            total_frequencies.get(phrase, 0) + frequency
+        immut_phrase = tuple(word.lower() for word in phrase)
+        total_frequencies[immut_phrase] = \
+            total_frequencies.get(immut_phrase, 0) + frequency
 
     return total_frequencies
     # phrases = []

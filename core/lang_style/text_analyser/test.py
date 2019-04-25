@@ -17,8 +17,8 @@ from . import text_analyser
 def test_string_tokenized(text, tokens):
     correct_tokens = tokens.split()
     tokenized_first_sentence = text_analyser.tokenize(text)[0]
-    for i_word, word_and_token in enumerate(tokenized_first_sentence):
-        assert word_and_token[1] == correct_tokens[i_word]
+    for i_word, (word, token) in enumerate(tokenized_first_sentence):
+        assert token == correct_tokens[i_word]
 
 
 

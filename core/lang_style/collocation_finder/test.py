@@ -1,3 +1,5 @@
+from builtins import print
+
 import pytest
 
 from . import api_phrasefinder, collocation_finder
@@ -26,12 +28,17 @@ def test_collocations_found(word, true_phrases):
 
 @pytest.mark.parametrize('phrases, true_frequencies', [
     (['strong tea', 'powerful tea', 'trololo blabalbla lol tea', 'bitter tea'],
-     [4,1,2,3]
+     [4,2,1,3]
      )
 ])
 def test_phrases_relative_frequency_found(phrases, true_frequencies):
     test_frequencies = api_phrasefinder.compare_phrases_frequency(phrases)
-    true_sorted = sorted(list(zip(phrases, true_frequencies)), key=lambda x:x[1], reverse=True)
+    true_sorted = sorted(tuple(zip(phrases, true_frequencies)), key=lambda x:x[1], reverse=True)
     print(true_sorted)
     for i_phrase, test_phrase in enumerate(test_frequencies):
-        assert test_phrase == true_sorted[i_phrase][0].split(' ')
+        assert test_phrase == tuple(true_sorted[i_phrase][0].split(' '))
+
+
+
+
+

@@ -2,7 +2,7 @@ import pytest
 import sys
 
 from .collocations_checker import Collocations_checker
-
+from . import collocations_checker
 
 """
 given text, Collocation_checker must provide an object
@@ -40,5 +40,16 @@ def execute_collocations_checker(request):
     assert choices.given_word == "on"
     assert "in" in choices.better_choices"""
 
+@pytest.mark.parametrize("text",[
+    ("find and sort word choices")
+])
+def test_find_word_choices_for_text(text):
+    """
+    find valuable words in the phrase (NOUN, VERB(not be), ADJ, ADV)
+    find synonims for each valuable word
+    compare collocations substituting each val.word to its synonims
 
+
+    """
+    collocations_checker.find_word_choices_for_text(text)
 

@@ -73,6 +73,20 @@ class Meaning:
         >'''.format(self.part, self.definition, self.synonims)
 
 def parce_server_data(raw_data, searched_word, searched_tag):
+    if (word_found(raw_data)):
+        return collect_synonims(raw_data, searched_word, searched_tag)
+    else:
+        return []
+
+def word_found(raw_data):
+    """
+    webster server returns a plain list of possible similar spelled words,
+    if it doesn't find the searched word
+    """
+    return 'meta' in raw_data[0]
+
+
+def collect_synonims(raw_data, searched_word, searched_tag):
     meanings = []
     for part_of_speech_block in raw_data:
         if part_of_speech_block['fl'] != searched_tag.lower():
@@ -87,7 +101,6 @@ def parce_server_data(raw_data, searched_word, searched_tag):
             meaning.synonims = part_of_speech_block['meta']['syns'][i_definition]
             meanings.append(meaning)
 
-    #print('\n'.join(map(str, meanings)))
     return meanings
 
 

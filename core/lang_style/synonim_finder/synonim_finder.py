@@ -3,7 +3,8 @@ from . import api_webster
 
 def process(given_text):
     '''
-    :param given_text: list of tuple(word, tag), tag is the Universal name of a part of speech
+    :param given_text: list of tuple(word, tag),
+                       tag is the Universal name of a part of speech (NOUN)
     :type param: list(tuple(str,str))
     :return:
     '''

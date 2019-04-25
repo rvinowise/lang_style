@@ -40,3 +40,10 @@ def test_provide_synonims_for_a_phrase(given_text):
     assert 'fast' in result[5]
     print(result)
     print(result[5])
+
+@pytest.mark.parametrize('word', [
+    ('trololol')
+])
+def test_unknown_word_return_empty_synonims_list(word):
+    result = synonim_finder.process(word)
+    assert result[0].choices == []
