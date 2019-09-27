@@ -53,7 +53,7 @@ def compare_phrases_frequency(phrases):
     '''
     :param phrases: list of str #list of list of words
     :return: list of phrases with frequencies, each phrase is a tuple of words
-    :type return: list(tuple(tuple(str..), float))
+    :type return: dict(tuple(tuple(str..), float))
     '''
     query = '"' + '"/"'.join(phrases) + '"'
     raw_data = retrieve_server_data(query)
@@ -96,7 +96,8 @@ def eliminate_case_sensitiveness(phrases):
     joins all the variants of the same phrase, adding their frequencies
     :param phrases: list of tuples(list(words), freq) (list of phrases)
     :type param: list(tuple(list(str),float))
-    :return: list of Different phrases+frequencies
+    :return: dict of Different phrases+frequencies
+    :type return: dict(tuple(tuple(str..),float)
     '''
     total_frequencies = {}
     for phrase, frequency in phrases:
@@ -105,7 +106,3 @@ def eliminate_case_sensitiveness(phrases):
             total_frequencies.get(immut_phrase, 0) + frequency
 
     return total_frequencies
-    # phrases = []
-    # for phrase, frequency in total_frequencies:
-    #
-    # return phrases
