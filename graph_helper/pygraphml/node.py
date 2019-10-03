@@ -20,9 +20,9 @@ class Node(Item):
 
         self._edges = []
         self._contained_nodes = []
-        self._container_node = []
+        self.container_node = []
 
-        _xml_node = None
+        xml = None
 
     def edges(self, ):
         """
@@ -57,5 +57,5 @@ class Node(Item):
     def contained_nodes(self):
         return self._contained_nodes
 
-    def container_node(self):
-        return self._container_node
+    #def container_node(self):
+        #return self.container_node

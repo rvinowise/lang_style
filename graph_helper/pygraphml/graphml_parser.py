@@ -8,7 +8,7 @@ from __future__ import print_function
 from lxml import etree
 
 from . import Graph
-
+from . import Node
 
 class GraphMLParser:
     """
@@ -26,63 +26,34 @@ class GraphMLParser:
         """
         """
 
-    def write(self, graph, fname=None):
+    def write(self, graph, file_name='out.graphml'):
 
-        doc = minidom.Document()
+        dst_graph = graph.xml
 
-        root = doc.createElement('graphml')
-        doc.appendChild(root)
+        #for src_node in graph.nodes():
+        self.recursive_write_node(dst_graph, graph)
+        gst_graph_section = dst_graph.find("_:graph",self.ns)
+        self.write_edges(gst_graph_section, graph)
 
-        # Add attributs
-        for a in graph.get_attributs():
-            attr_node = doc.createElement('key')
-            attr_node.setAttribute('id', a.name)
-            attr_node.setAttribute('attr.name', a.name)
-            attr_node.setAttribute('attr.type', a.type)
-            root.appendChild(attr_node)
+        #child = etree.SubElement(root, "test_child")
 
-        graph_node = doc.createElement('graph')
-        graph_node.setAttribute('id', graph.name)
-        if graph.directed:
-            graph_node.setAttribute('edgedefault', 'directed')
-        else:
-            graph_node.setAttribute('edgedefault', 'undirected')
-        root.appendChild(graph_node)
+        doc = etree.ElementTree(dst_graph)
 
-        # Add nodes
-        for n in graph.nodes():
+        with open(file_name, 'wb') as file:
+            file.write(etree.tostring(doc, pretty_print=True))
 
-            node = doc.createElement('node')
-            node.setAttribute('id', n['label'])
-            for a in n.attributes():
-                if a != 'label':
-                    data = doc.createElement('data')
-                    data.setAttribute('key', a)
-                    data.appendChild(doc.createTextNode(str(n[a])))
-                    node.appendChild(data)
-            graph_node.appendChild(node)
 
-        # Add edges
-        for e in graph.edges():
+    def recursive_write_node(self, dst_node, src_node):
+        grapn_section = dst_node.find("_:graph",self.ns)
+        assert (grapn_section!=None) == (len(src_node.contained_nodes())>0), '"graph" section is needed if the node has children'
 
-            edge = doc.createElement('edge')
-            edge.setAttribute('source', e.node1['label'])
-            edge.setAttribute('target', e.node2['label'])
-            if e.directed() != graph.directed:
-                edge.setAttribute('directed', 'true' if e.directed() else 'false')
-            for a in e.attributes():
-                if e != 'label':
-                    data = doc.createElement('data')
-                    data.setAttribute('key', a)
-                    data.appendChild(doc.createTextNode(e[a]))
-                    edge.appendChild(data)
-            graph_node.appendChild(edge)
+        for child in src_node.contained_nodes():
+            grapn_section.append(child.xml)
+            self.recursive_write_node(child.xml, child)
 
-        if fname is not None:
-            f = open(fname, 'w')
-            f.write(doc.toprettyxml(indent='    '))
-        else:
-            return doc.toprettyxml(indent='', newl='')
+    def write_edges(self, gst_graph_section, graph):
+        for edge in graph.edges():
+            gst_graph_section.append(edge.xml)
 
 
     def parse(self, fname):
@@ -94,33 +65,31 @@ class GraphMLParser:
             #xml_str = etree.tostring(elem,encoding=str)
 
             root = dom.getroot()
-            src_graph = root.findall("_:graph",self.ns)[0]
+            #src_envelope = root.find("_:graphml",self.ns)
+            #src_envelope.remove(src_envelope.find())
+            src_graph = root.find("_:graph",self.ns)
             name = src_graph.attrib['id']
 
             dst_graph = Graph(name)
 
             # Get nodes
-            dst_graph_node = dst_graph.add_node(id="graph")
-            self.recursively_read_node(dst_graph, dst_graph_node, src_graph)
+            #dst_graph_node = dst_graph.add_node(id="doc")
+            #for high_level_node in src_graph.findall("_:node",self.ns):
+            self.recursively_import_node(dst_graph, dst_graph, src_graph)
 
             # Get edges
-            for edge in src_graph.findall("edge"):
-                source = edge.attrib['source']
-                dest = edge.attrib['target']
+            for src_edge in src_graph.findall("_:edge",self.ns):
+                self.import_edge(dst_graph, src_edge)
 
-                # source/target attributes refer to IDs: http://graphml.graphdrawing.org/xmlns/1.1/graphml-structure.xsd
-                e = dst_graph.add_edge_by_id(source, dest)
-
+            dst_graph.xml = root
 
         return dst_graph
 
     ignored_nodes = ["ViewState"]
 
-    def recursively_read_node(self, dst_graph, dst_node, src_node):
+    def recursively_import_node(self, graph, dst_node, src_node):
         try:
-            if src_node.attrib["id"] == "n0::n13":
-                test =True
-            if src_node.attrib["id"] == "n1":
+            if src_node.attrib["id"] == "n0::n12":
                 test =True
         except:
             pass
@@ -128,12 +97,13 @@ class GraphMLParser:
         for child in src_node.getchildren():
             #if child.tag == "_:graph":
             if etree.QName(child).localname == "graph":
-                self.recursively_read_node(dst_graph, dst_node, child)
+                self.recursively_import_node(graph, dst_node, child)
             elif etree.QName(child).localname == "node":
-                new_node = dst_graph.add_node(id=child.attrib['id'])
-                new_node._container_node.append(dst_node)
+                new_node = graph.add_node(child.attrib['id'])
+                new_node.container_node.append(dst_node)
                 dst_node._contained_nodes.append(new_node)
-                self.recursively_read_node(dst_graph, new_node, child)
+                self.recursively_import_node(graph, new_node, child)
+                self.save_xml_to_node(new_node, child)
             else:
                 if etree.QName(child).localname not in self.ignored_nodes:
                     if (etree.QName(child).localname == "Realizers"):
@@ -150,7 +120,7 @@ class GraphMLParser:
                 val = src_node.text
                 dst_node[key] = src_node.text
 
-        self.save_xml_to_node(dst_node, src_node)
+
 
 
     def recursively_read_attribs(self, dst_node, src_node):
@@ -181,7 +151,22 @@ class GraphMLParser:
 
 
     def save_xml_to_node(self, dst_node, src_node):
-        dst_node._xml_node = etree.tostring(src_node)
+        dst_node.xml = src_node
+        parent = src_node.getparent()
+        test0 = etree.tostring(parent, pretty_print=True, encoding=str)
+        src_node.getparent().remove(src_node)
+        test1 = etree.tostring(parent, pretty_print=True, encoding=str)
+        pass
+
+    def import_edge(self, dst_graph, src_edge):
+        source = src_edge.attrib['source']
+        dest = src_edge.attrib['target']
+        edge = dst_graph.add_edge_by_id(source, dest)
+        edge.xml = src_edge
+
+        #test0 = etree.tostring(src_edge.getparent(), pretty_print=True, encoding=str)
+        src_edge.getparent().remove(src_edge)
+        #test1 = etree.tostring(src_edge.getparent(), pretty_print=True, encoding=str)
 
 
 if __name__ == '__main__':

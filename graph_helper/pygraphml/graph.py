@@ -11,7 +11,7 @@ from . import Edge
 from collections import deque
 
 
-class Graph:
+class Graph(Node):
     """
     Main class which represent a Graph
 
@@ -19,14 +19,12 @@ class Graph:
     """
 
     def __init__(self, name=""):
-        """
-        """
+        super(Graph, self).__init__("doc")
 
         self.name = name
 
-        self._nodes = []
+        self._all_nodes = []
         self._edges = []
-        self._root = None
         self.directed = True
 
         self.i = 0
@@ -107,7 +105,7 @@ class Graph:
         """
         """
 
-        return self._nodes
+        return self._all_nodes
 
     def edges(self, ):
         """
@@ -126,7 +124,7 @@ class Graph:
         """
 
         n = Node(id)
-        self._nodes.append(n)
+        self._all_nodes.append(n)
 
         return n
 
@@ -134,10 +132,10 @@ class Graph:
         """
         """
 
-        if n1 not in self._nodes:
-            raise Test("fff")
-        if n2 not in self._nodes:
-            raise Test("fff")
+        if n1 not in self._all_nodes:
+            raise Exception("connecting unexisting nodes")
+        if n2 not in self._all_nodes:
+            raise Exception("connecting unexisting nodes")
 
         e = Edge(n1, n2, directed)
         self._edges.append(e)
@@ -146,11 +144,11 @@ class Graph:
 
     def add_edge_by_id(self, id1, id2):
         try:
-            n1 = next(n for n in self._nodes if n.id == id1)
+            n1 = next(n for n in self._all_nodes if n.id == id1)
         except StopIteration:
             raise ValueError('Graph has no node with ID {}'.format(id1))
         try:
-            n2 = next(n for n in self._nodes if n.id == id2)
+            n2 = next(n for n in self._all_nodes if n.id == id2)
         except StopIteration:
             raise ValueError('Graph has no node with ID {}'.format(id2))
         return self.add_edge(n1, n2)
@@ -162,7 +160,7 @@ class Graph:
         n1 = None
         n2 = None
 
-        for n in self._nodes:
+        for n in self._all_nodes:
             if n['label'] == label1:
                 n1 = n
             if n['label'] == label2:
@@ -222,7 +220,7 @@ class Graph:
 
         G = nx.Graph()
 
-        for n in self._nodes:
+        for n in self._all_nodes:
             if show_label:
                 n_label = n['label']
             else:
@@ -259,19 +257,19 @@ class NoDupesGraph(Graph):
 
     def __init__(self,*args,**kwargs):
         Graph.__init__(self,*args,**kwargs)
-        self._nodes = {}
+        self._all_nodes = {}
 
     def nodes(self):
-        return self._nodes.values()
+        return self._all_nodes.values()
 
     def add_node(self,label):
       '''Return a node with label. Create node if label is new'''
       try:
-          n = self._nodes[label]
+          n = self._all_nodes[label]
       except KeyError:
           n = Node()
           n['label'] = label
-          self._nodes[label]=n
+          self._all_nodes[label]=n
       return n
 
     def add_edge(self, n1_label, n2_label,directed=False):
